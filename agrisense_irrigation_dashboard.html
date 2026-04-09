@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AgriSense IoT Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1923;
+  --panel:#162030;
+  --panel2:#1c2b3a;
+  --border:#ffffff12;
+  --text:#e8f4f8;
+  --muted:#7a96a8;
+  --dry:#e84545;
+  --dry-glow:rgba(232,69,69,0.25);
+  --opt:#27ae60;
+  --opt-glow:rgba(39,174,96,0.25);
+  --sat:#2980e8;
+  --sat-glow:rgba(41,128,232,0.25);
+  --font-head:'Orbitron',monospace;
+  --font-body:'Nunito',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;
+  background:linear-gradient(90deg,#0d2137,#162a3c,#0d2137);
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;gap:10px;
+}
+.topbar-brand{display:flex;align-items:center;gap:12px;}
+.brand-icon{
+  width:38px;height:38px;border-radius:9px;
+  background:linear-gradient(135deg,#27ae60,#1a7a42);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 0 14px rgba(39,174,96,0.5);
+}
+.brand-name{font-family:var(--font-head);font-size:15px;letter-spacing:0.1em;color:#fff;}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.topbar-clock{
+  font-family:var(--font-head);font-size:17px;
+  background:#0d1923;border:1px solid var(--border);
+  padding:6px 16px;border-radius:7px;color:#7ecfff;
+  letter-spacing:0.12em;
+}
+.conn-pill{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(39,174,96,0.15);
+  border:1px solid rgba(39,174,96,0.45);
+  border-radius:20px;padding:6px 16px;
+  font-size:13px;font-weight:700;color:#2ecc71;
+}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;animation:blink 1.3s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.15}}
+
+/* LAYOUT */
+.main{padding:24px 28px;max-width:1400px;margin:0 auto;}
+
+/* ZONES GRID */
+.zones-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:20px;
+  margin-bottom:24px;
+}
+
+/* ZONE CARD */
+.zone-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px;
+  transition:border-color 0.5s,box-shadow 0.5s;
+  position:relative;overflow:hidden;
+}
+.zone-card.dry{border-color:var(--dry);box-shadow:0 0 24px var(--dry-glow);}
+.zone-card.opt{border-color:var(--opt);box-shadow:0 0 24px var(--opt-glow);}
+.zone-card.sat{border-color:var(--sat);box-shadow:0 0 24px var(--sat-glow);}
+
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.card-zone-id{font-family:var(--font-head);font-size:10px;color:var(--muted);letter-spacing:0.1em;}
+.card-zone-name{font-size:16px;font-weight:700;color:#fff;margin-top:3px;}
+.card-crop{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.cond-pill{font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;letter-spacing:0.07em;text-transform:uppercase;}
+.cond-pill.dry{background:rgba(232,69,69,0.2);color:var(--dry);border:1px solid rgba(232,69,69,0.4);}
+.cond-pill.opt{background:rgba(39,174,96,0.2);color:#2ecc71;border:1px solid rgba(39,174,96,0.4);}
+.cond-pill.sat{background:rgba(41,128,232,0.2);color:#5dade2;border:1px solid rgba(41,128,232,0.4);}
+
+/* ARC GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 12px;}
+.gauge-svg{width:150px;height:90px;overflow:visible;}
+.gauge-track{fill:none;stroke:#ffffff0d;stroke-width:13;stroke-linecap:round;}
+.gauge-fill{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dasharray 1s cubic-bezier(.4,0,.2,1),stroke 0.5s;}
+.gauge-val{font-family:var(--font-head);font-size:21px;font-weight:700;fill:#fff;}
+.gauge-sub{font-size:10px;fill:#7a96a8;font-family:'Nunito',sans-serif;}
+
+/* PROGRESS BAR */
+.prog-track{height:5px;background:rgba(255,255,255,0.06);border-radius:4px;margin:6px 0 14px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;transition:width 0.9s ease,background 0.5s;}
+
+/* PUMP */
+.pump-divider{border:none;border-top:1px solid var(--border);margin:0 0 13px;}
+.pump-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.pump-label{font-size:12px;color:var(--muted);}
+.pump-status{font-family:var(--font-head);font-size:13px;font-weight:700;}
+.pump-status.on{color:#5dade2;animation:pumppulse 1.1s infinite;}
+.pump-status.off{color:var(--muted);}
+@keyframes pumppulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.pump-btns{display:flex;gap:8px;}
+.btn-start,.btn-stop{
+  flex:1;border:none;cursor:pointer;
+  padding:8px 0;border-radius:8px;
+  font-family:var(--font-body);font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:opacity 0.2s,transform 0.1s;
+}
+.btn-start{background:linear-gradient(135deg,#27ae60,#1a7a42);color:#fff;}
+.btn-stop{background:linear-gradient(135deg,#e84545,#a02020);color:#fff;}
+.btn-start:hover,.btn-stop:hover{opacity:0.82;}
+.btn-start:active,.btn-stop:active{transform:scale(0.97);}
+
+/* BOTTOM ROW */
+.bottom-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.panel-title{
+  font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.1em;
+  margin-bottom:14px;display:flex;align-items:center;gap:7px;
+}
+
+/* STAT BOXES */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-box{background:var(--panel2);border-radius:10px;padding:12px 14px;border:1px solid var(--border);}
+.stat-box-label{font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
+.stat-box-val{font-family:var(--font-head);font-size:22px;font-weight:700;}
+.stat-box-val.dry{color:var(--dry);}
+.stat-box-val.opt{color:#2ecc71;}
+.stat-box-val.sat{color:#5dade2;}
+.stat-box-val.white{color:#fff;}
+
+/* LEGEND */
+.legend-list{display:flex;flex-direction:column;gap:12px;}
+.leg-item{display:flex;align-items:center;gap:10px;}
+.leg-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+.leg-text{font-size:13px;color:var(--text);}
+.leg-range{font-size:11px;color:var(--muted);margin-left:auto;}
+
+/* CHART */
+.chart-wrap{height:150px;position:relative;}
+
+.footer{text-align:right;margin-top:18px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">🌱</div>
+    <div>
+      <div class="brand-name">AGRISENSE</div>
+      <div class="brand-sub">IoT Irrigation Dashboard</div>
+    </div>
+  </div>
+  <div class="topbar-clock" id="clock">--:--:-- --</div>
+  <div class="conn-pill"><span class="conn-dot"></span>Connected</div>
+</header>
+
+<main class="main">
+  <div class="zones-grid" id="zones-grid"></div>
+
+  <div class="bottom-row">
+    <div class="panel">
+      <div class="panel-title">📊 Zone Summary</div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-box-label">Total Zones</div><div class="stat-box-val white">4</div></div>
+        <div class="stat-box"><div class="stat-box-label">Pumps ON</div><div class="stat-box-val sat" id="sum-pumps">0</div></div>
+        <div class="stat-box"><div class="stat-box-label">Optimal</div><div class="stat-box-val opt" id="sum-opt">0</div></div>
+        <div class="stat-box"><div class="stat-box-label">Dry</div><div class="stat-box-val dry" id="sum-dry">0</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🎨 Condition Legend</div>
+      <div class="legend-list">
+        <div class="leg-item"><div class="leg-dot" style="background:#e84545;box-shadow:0 0 7px #e84545;"></div><div class="leg-text">Dry</div><div class="leg-range">Moisture &lt; 35%</div></div>
+        <div class="leg-item"><div class="leg-dot" style="background:#27ae60;box-shadow:0 0 7px #27ae60;"></div><div class="leg-text">Optimal</div><div class="leg-range">35% – 90%</div></div>
+        <div class="leg-item"><div class="leg-dot" style="background:#2980e8;box-shadow:0 0 7px #2980e8;"></div><div class="leg-text">Saturated</div><div class="leg-range">Moisture &gt; 90%</div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column: span 2;">
+      <div class="panel-title">📈 Soil Moisture Trend — All Zones</div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="footer" id="last-update">Connecting to Firebase…</div>
+</main>
+
+<script>
+// ── ZONE CONFIG ───────────────────────────────────────────
+const ZONES=[
+  {id:'Zone1',name:'Zone 1',crop:'Rice'},
+  {id:'Zone2',name:'Zone 2',crop:'Maize'},
+  {id:'Zone3',name:'Zone 3',crop:'Tomato'},
+  {id:'Zone4',name:'Zone 4',crop:'Lettuce'},
+];
+const COLORS={dry:'#e84545',opt:'#27ae60',sat:'#2980e8'};
+const LABELS={dry:'Dry',opt:'Optimal',sat:'Saturated'};
+
+// SVG arc gauge setup (viewBox 150x90)
+const CX=75,CY=82,R=60;
+function polar(cx,cy,r,deg){
+  const rad=(deg-90)*Math.PI/180;
+  return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)];
+}
+function arc(cx,cy,r,s,e){
+  const[sx,sy]=polar(cx,cy,r,s),[ex,ey]=polar(cx,cy,r,e);
+  return`M${sx} ${sy}A${r} ${r} 0 ${e-s>180?1:0} 1 ${ex} ${ey}`;
+}
+const S=205,E=335,SPAN=E-S;
+const CIRCUM=2*Math.PI*R;
+const ARC_LEN=(SPAN/360)*CIRCUM;
+const TRACK_D=arc(CX,CY,R,S,E);
+
+function dashFor(pct){
+  const f=(Math.min(Math.max(pct,0),100)/100)*ARC_LEN;
+  return`${f.toFixed(2)} ${CIRCUM}`;
+}
+
+// ── BUILD CARDS ───────────────────────────────────────────
+const grid=document.getElementById('zones-grid');
+ZONES.forEach(z=>{
+  const d=document.createElement('div');
+  d.id=`card-${z.id}`;d.className='zone-card';
+  d.innerHTML=`
+    <div class="card-head">
+      <div>
+        <div class="card-zone-id">${z.id.toUpperCase()} · NODE</div>
+        <div class="card-zone-name">${z.name}</div>
+        <div class="card-crop">🌾 ${z.crop}</div>
+      </div>
+      <div id="pill-${z.id}" class="cond-pill">--</div>
+    </div>
+    <div class="gauge-wrap">
+      <svg class="gauge-svg" viewBox="0 0 150 90">
+        <path class="gauge-track" d="${TRACK_D}" stroke-dasharray="${ARC_LEN} ${CIRCUM}"/>
+        <path id="arc-${z.id}" class="gauge-fill" d="${TRACK_D}" stroke="${COLORS.opt}" stroke-dasharray="0 ${CIRCUM}"/>
+        <text id="gval-${z.id}" class="gauge-val" x="${CX}" y="${CY-2}" text-anchor="middle">--%</text>
+        <text class="gauge-sub" x="${CX}" y="${CY+14}" text-anchor="middle">SOIL MOISTURE</text>
+      </svg>
+    </div>
+    <div class="prog-track"><div id="bar-${z.id}" class="prog-fill" style="width:0%"></div></div>
+    <hr class="pump-divider"/>
+    <div class="pump-row">
+      <span class="pump-label">⚙ Pump Status</span>
+      <span id="pump-${z.id}" class="pump-status off">STOPPED</span>
+    </div>
+    <div class="pump-btns">
+      <button class="btn-start" onclick="manualPump('${z.id}','ON')">▶ Start</button>
+      <button class="btn-stop"  onclick="manualPump('${z.id}','OFF')">■ Stop</button>
+    </div>`;
+  grid.appendChild(d);
+});
+
+// ── STATE & HISTORY ───────────────────────────────────────
+const state={};
+const hist={Zone1:[],Zone2:[],Zone3:[],Zone4:[]};
+const MAX=20;
+
+// ── CHART ─────────────────────────────────────────────────
+const zColors=['#e84545','#27ae60','#2980e8','#f39c12'];
+const trendChart=new Chart(document.getElementById('trendChart').getContext('2d'),{
+  type:'line',
+  data:{
+    labels:Array.from({length:MAX},(_,i)=>i===MAX-1?'Now':''),
+    datasets:ZONES.map((z,i)=>({
+      label:z.name,data:Array(MAX).fill(null),
+      borderColor:zColors[i],backgroundColor:zColors[i]+'22',
+      borderWidth:2,pointRadius:2,tension:0.4,fill:false,
+    }))
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,animation:{duration:300},
+    plugins:{legend:{labels:{color:'#7a96a8',font:{size:11,family:'Nunito'}}}},
+    scales:{
+      x:{ticks:{color:'#7a96a8',maxTicksLimit:4,font:{size:10}},grid:{color:'#ffffff08'}},
+      y:{min:0,max:100,ticks:{color:'#7a96a8',font:{size:10},stepSize:25},grid:{color:'#ffffff08'}},
+    }
+  }
+});
+
+function refreshChart(){
+  ZONES.forEach((z,i)=>{
+    const h=hist[z.id];
+    trendChart.data.datasets[i].data=Array(MAX-h.length).fill(null).concat(h);
+  });
+  trendChart.update('none');
+}
+
+// ── UPDATE ZONE ───────────────────────────────────────────
+function getCond(m){return m<35?'dry':m>90?'sat':'opt';}
+
+function updateZone(zoneId,moisture,pump){
+  const cond=getCond(moisture);
+  state[zoneId]={cond,pump};
+
+  document.getElementById(`card-${zoneId}`).className=`zone-card ${cond}`;
+
+  const pill=document.getElementById(`pill-${zoneId}`);
+  pill.className=`cond-pill ${cond}`;pill.textContent=LABELS[cond];
+
+  const arcEl=document.getElementById(`arc-${zoneId}`);
+  arcEl.setAttribute('stroke',COLORS[cond]);
+  arcEl.setAttribute('stroke-dasharray',dashFor(moisture));
+
+  document.getElementById(`gval-${zoneId}`).textContent=moisture.toFixed(1)+'%';
+
+  const bar=document.getElementById(`bar-${zoneId}`);
+  bar.style.width=Math.min(moisture,100)+'%';
+  bar.style.background=COLORS[cond];
+
+  const pEl=document.getElementById(`pump-${zoneId}`);
+  pEl.textContent=pump==='ON'?'RUNNING':'STOPPED';
+  pEl.className='pump-status '+(pump==='ON'?'on':'off');
+
+  const h=hist[zoneId];
+  h.push(parseFloat(moisture.toFixed(1)));
+  if(h.length>MAX)h.shift();
+  refreshChart();
+
+  const v=Object.values(state);
+  document.getElementById('sum-pumps').textContent=v.filter(x=>x.pump==='ON').length;
+  document.getElementById('sum-opt').textContent=v.filter(x=>x.cond==='opt').length;
+  document.getElementById('sum-dry').textContent=v.filter(x=>x.cond==='dry').length;
+}
+
+// ── MANUAL PUMP ───────────────────────────────────────────
+function manualPump(zoneId,val){
+  if(typeof db!=='undefined'&&db)
+    db.ref(`Zones/${zoneId}/pump`).set(val).catch(()=>{});
+  const cur=parseFloat(document.getElementById(`gval-${zoneId}`).textContent)||0;
+  updateZone(zoneId,cur,val);
+}
+
+// ── CLOCK ─────────────────────────────────────────────────
+function tick(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds();
+  const ap=h>=12?'PM':'AM',hh=h%12||12;
+  document.getElementById('clock').textContent=
+    String(hh).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;
+}
+setInterval(tick,1000);tick();
+
+// ── FIREBASE ──────────────────────────────────────────────
+let db=null;
+try{
+  // --- Firebase Credentials ---
+  // #define API_KEY "AIzaSyB48iK9hk-MjOXSTa8mF02fK9GpNUrVtKM"
+  // #define DATABASE_URL "https://agrisense-f5987-default-rtdb.asia-southeast1.firebasedatabase.app/"
+  const API_KEY = "AIzaSyB48iK9hk-MjOXSTa8mF02fK9GpNUrVtKM";
+  const DATABASE_URL = "https://agrisense-f5987-default-rtdb.asia-southeast1.firebasedatabase.app/";
+
+  const firebaseConfig={
+    apiKey: API_KEY,
+    databaseURL: DATABASE_URL,
+    projectId:"agrisense-f5987",
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  db=firebase.database();
+  db.ref('Zones').on('value',(snap)=>{
+    const data=snap.val();
+    if(!data){
+      document.getElementById('last-update').textContent='No Firebase zone data available';
+      return;
+    }
+    ZONES.forEach(z=>{if(data[z.id])updateZone(z.id,data[z.id].moisture,data[z.id].pump);});
+    document.getElementById('last-update').textContent='Last updated: '+new Date().toLocaleTimeString();
+  },(err)=>{
+    console.error('Firebase listener error:', err);
+    document.getElementById('last-update').textContent='Firebase listener error: '+err.message;
+  });
+}catch(e){
+  console.error('Firebase initialization error:', e);
+  document.getElementById('last-update').textContent='Firebase init error: '+e.message;
+}
+</script>
+</body>
+</html>
