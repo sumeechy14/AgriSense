@@ -26,7 +26,7 @@
   --font-head:'Orbitron',monospace;
   --font-body:'Nunito',sans-serif;
 }
-body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100vh;font-size:16px;font-weight:600;line-height:1.5;}
+body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100vh;font-size:16px;font-weight:600;line-height:1.5;padding:20px;}
 
 /* TOP BAR */
 .topbar{
@@ -43,16 +43,14 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
   display:flex;align-items:center;justify-content:center;
   font-size:20px;box-shadow:0 0 14px rgba(39,174,96,0.5);
 }
-.brand-name{font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:0.1em;color:#fff;}
-.brand-sub{font-family:var(--font-body);font-size:12px;font-weight:600;color:#fff;margin-top:1px;}
+.brand-name{font-family:var(--font-head);font-size:24px;font-weight:900;letter-spacing:0.1em;color:#fff;}
+.brand-sub{font-family:var(--font-body);font-size:16px;font-weight:700;color:#fff;margin-top:2px;}
 .topbar-clock{
-  font-family:var(--font-head);font-size:18px;font-weight:700;
-  background:#0d1923;border:1px solid var(--border);
+  font-family:var(--font-head);font-size:14px;font-weight:700;
+  background: transparent;border: none;
   padding:6px 16px;border-radius:7px;color:#fff;
-  letter-spacing:0.12em;display:flex;flex-direction:column;align-items:center;
+  letter-spacing:0.12em;text-align:center;
 }
-.topbar-clock .time{font-size:17px;}
-.topbar-clock .date{font-size:12px;margin-top:2px;color:#7ecfff;}
 .conn-pill{
   display:flex;align-items:center;gap:8px;
   background:rgba(255,255,255,0.08);
@@ -82,14 +80,14 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
   display:flex;
   align-items:center;
   gap:14px;
-  padding:18px 20px;
+  padding:12px 16px;
   border-radius:18px;
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.08);
 }
 .climate-icon{
-  width:52px;
-  height:52px;
+  width:40px;
+  height:40px;
   border-radius:16px;
   display:flex;
   align-items:center;
@@ -103,21 +101,21 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
   min-width:0;
 }
 .climate-label{
-  font-size:13px;
+  font-size:12px;
   font-weight:700;
   color:#9fb6cd;
   text-transform:uppercase;
   letter-spacing:0.12em;
 }
 .climate-value{
-  font-size:30px;
+  font-size:24px;
   font-weight:800;
   color:#fff;
   line-height:1.05;
 }.climate-subinfo{
-  font-size:13px;
+  font-size:12px;
   color:#b1c6db;
-  margin-top:6px;
+  margin-top:4px;
 }
 /* ZONES GRID */
 .zones-grid{
@@ -165,8 +163,8 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
 .pump-divider{border:none;border-top:1px solid var(--border);margin:0 0 13px;}
 .pump-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .pump-row.running .pump-label{color:#174a7a;}
-.pump-label{font-size:14px;color:#fff;font-weight:700;}
-.pump-status{font-family:var(--font-body);font-size:18px;font-weight:800;color:#fff;}
+.pump-label{font-size:14px;color:#fff;font-weight:900;}
+.pump-status{font-family:var(--font-body);font-size:18px;font-weight:900;color:#fff;}
 .pump-status.on{color:#174a7a;}
 .pump-status.off{color:#fff;}
 @keyframes pumppulse{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -216,8 +214,6 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
 #data-table th{font-family:var(--font-body);font-size:13px;}
 .stat-box-label{font-size:12px;color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
 .stat-box-val{font-family:var(--font-head);font-size:24px;font-weight:700;color:#fff;}
-.leg-text{font-size:14px;color:#fff;font-weight:600;}
-.leg-range{font-size:12px;color:#fff;margin-left:auto;font-weight:600;}
 .footer{color:#fff;font-size:13px;font-weight:600;}
 
 /* DATA TABLE */
@@ -250,19 +246,19 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
 /* STAT BOXES */
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .stat-box{background:var(--panel2);border-radius:10px;padding:12px 14px;border:1px solid var(--border);}
-.stat-box-label{font-size:11px;color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
-.stat-box-val{font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff;}
+.stat-box-label{font-size:12px;color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;font-weight:700;}
+.stat-box-val{font-family:var(--font-head);font-size:24px;font-weight:700;color:#fff;}
 .stat-box-val.dry{color:#fff;}
 .stat-box-val.opt{color:#fff;}
 .stat-box-val.sat{color:#fff;}
 .stat-box-val.white{color:#fff;}
 
 /* LEGEND */
-.legend-list{display:flex;flex-direction:column;gap:12px;}
-.leg-item{display:flex;align-items:center;gap:10px;}
-.leg-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
-.leg-text{font-size:13px;color:#fff;}
-.leg-range{font-size:11px;color:#fff;margin-left:auto;}
+.legend-list{display:flex;flex-direction:column;gap:16px;justify-content:center;align-items:center;min-height:200px;}
+.leg-item{display:flex;align-items:center;gap:12px;}
+.leg-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;}
+.leg-text{font-size:16px;color:#fff;font-weight:600;}
+.leg-range{font-size:14px;color:#fff;margin-left:auto;font-weight:600;}
 
 /* CHART */
 .chart-wrap{height:280px;position:relative;}
@@ -328,10 +324,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
       <div class="brand-sub">IoT Irrigation Dashboard</div>
     </div>
   </div>
-  <div class="topbar-clock" id="clock">
-    <div class="time">--:--:-- --</div>
-    <div class="date">--/--/--</div>
-  </div>
+  <div class="topbar-clock" id="clock">--</div>
   <div class="conn-pill"><span class="conn-dot"></span>Connected</div>
 </header>
 
@@ -376,7 +369,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
         <div class="panel-title">📈 Soil Moisture Trend — All Zones</div>
         <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
         <div class="data-records-corner">
-          <button id="view-data-btn" class="data-btn">📋 Data Records</button>
+          <button id="view-data-btn" class="data-btn">📋 DATA RECORDS</button>
         </div>
       </div>
     </div>
@@ -392,7 +385,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
         </div>
       </div>
       <div class="panel">
-        <div class="panel-title">🎨 Condition Legend</div>
+        <div class="panel-title">📊 Condition Legend</div>
         <div class="legend-list">
           <div class="leg-item"><div class="leg-dot" style="background:#e84545;box-shadow:0 0 7px #e84545;"></div><div class="leg-text">Dry</div><div class="leg-range">Moisture &lt; 35%</div></div>
           <div class="leg-item"><div class="leg-dot" style="background:#27ae60;box-shadow:0 0 7px #27ae60;"></div><div class="leg-text">Optimal</div><div class="leg-range">35% – 90%</div></div>
@@ -403,14 +396,14 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
   <div class="bottom-row">
     <div class="panel alert-panel" id="alerts-panel">
       <div class="alert-header">
-        <div class="alert-title">🔔 Alerts</div>
+        <div class="alert-title">🔔 ALERTS</div>
         <div class="alert-count">0 alerts</div>
       </div>
       <div class="alerts-list" id="alerts-list">
         <div class="alert-empty">No alerts yet. Dry or saturated zones will appear here automatically.</div>
       </div>
       <div class="alert-actions">
-        <button id="view-alerts-btn" class="data-btn" type="button">View All Alerts</button>
+        <button id="view-alerts-btn" class="data-btn" type="button">View All ALERTS</button>
       </div>
     </div>
   </div>
@@ -421,7 +414,7 @@ body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100
 <div id="dataModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
-    <h2>Data Records</h2>
+    <h2>DATA RECORDS</h2>
     <table id="modal-data-table">
       <thead>
         <tr>
@@ -589,10 +582,10 @@ const trendChart=new Chart(document.getElementById('trendChart').getContext('2d'
   },
   options:{
     responsive:true,maintainAspectRatio:false,animation:{duration:300},
-    plugins:{legend:{onClick:()=>{},labels:{color:'#fff',font:{size:11,family:'Nunito'}}}},
+    plugins:{legend:{onClick:()=>{},labels:{color:'#fff',font:{size:13,family:'Nunito',weight:'bold'}}}},
     scales:{
-      x:{ticks:{color:'#fff',maxTicksLimit:4,font:{size:10,family:'Nunito'}},grid:{color:'#ffffff08'}},
-      y:{min:0,max:100,ticks:{color:'#fff',font:{size:10,family:'Nunito'},stepSize:25},grid:{color:'#ffffff08'}},
+      x:{ticks:{color:'#fff',maxTicksLimit:4,font:{size:12,family:'Nunito',weight:'bold'}},grid:{color:'#ffffff08'}},
+      y:{min:0,max:100,ticks:{color:'#fff',font:{size:12,family:'Nunito',weight:'bold'},stepSize:25},grid:{color:'#ffffff08'}},
 
     }
   }
@@ -671,12 +664,10 @@ function manualPump(zoneId,val){
 
 // ── CLOCK ─────────────────────────────────────────────────
 function tick(){
-  const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds();
-  const ap=h>=12?'PM':'AM',hh=h%12||12;
-  document.querySelector('.topbar-clock .time').textContent=
-    String(hh).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;
-  document.querySelector('.topbar-clock .date').textContent=
-    String(n.getDate()).padStart(2,'0')+'/'+String(n.getMonth()+1).padStart(2,'0')+'/'+n.getFullYear();
+  const n = new Date();
+  const dateStr = n.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  document.getElementById('clock').textContent = dateStr + ' at ' + timeStr;
 }
 setInterval(tick,1000);tick();
 
