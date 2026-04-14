@@ -4,14 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>AgriSense IoT Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1923;
+  --bg:linear-gradient(135deg, #0f1923 0%, #1a4d3a 50%, #0f1923 100%);
   --panel:#162030;
   --panel2:#1c2b3a;
   --border:#ffffff12;
@@ -26,7 +26,7 @@
   --font-head:'Orbitron',monospace;
   --font-body:'Nunito',sans-serif;
 }
-body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;}
+body{font-family:var(--font-body);background:var(--bg);color:#fff;min-height:100vh;font-size:16px;font-weight:600;line-height:1.5;}
 
 /* TOP BAR */
 .topbar{
@@ -43,27 +43,82 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   display:flex;align-items:center;justify-content:center;
   font-size:20px;box-shadow:0 0 14px rgba(39,174,96,0.5);
 }
-.brand-name{font-family:var(--font-head);font-size:15px;letter-spacing:0.1em;color:#fff;}
-.brand-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.brand-name{font-family:var(--font-head);font-size:16px;font-weight:800;letter-spacing:0.1em;color:#fff;}
+.brand-sub{font-family:var(--font-body);font-size:12px;font-weight:600;color:#fff;margin-top:1px;}
 .topbar-clock{
-  font-family:var(--font-head);font-size:17px;
+  font-family:var(--font-head);font-size:18px;font-weight:700;
   background:#0d1923;border:1px solid var(--border);
-  padding:6px 16px;border-radius:7px;color:#7ecfff;
-  letter-spacing:0.12em;
+  padding:6px 16px;border-radius:7px;color:#fff;
+  letter-spacing:0.12em;display:flex;flex-direction:column;align-items:center;
 }
+.topbar-clock .time{font-size:17px;}
+.topbar-clock .date{font-size:12px;margin-top:2px;color:#7ecfff;}
 .conn-pill{
   display:flex;align-items:center;gap:8px;
-  background:rgba(39,174,96,0.15);
-  border:1px solid rgba(39,174,96,0.45);
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.22);
   border-radius:20px;padding:6px 16px;
-  font-size:13px;font-weight:700;color:#2ecc71;
+  font-size:13px;font-weight:700;color:#fff;
 }
+.conn-pill.online{background:rgba(39,174,96,0.18);border-color:rgba(39,174,96,0.5);}
+.conn-pill.offline{background:rgba(232,69,69,0.18);border-color:rgba(232,69,69,0.5);}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;animation:blink 1.3s infinite;}
+.conn-pill.offline .conn-dot{background:#e84545;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.15}}
 
-/* LAYOUT */
-.main{padding:24px 28px;max-width:1400px;margin:0 auto;}
-
+/* CLIMATE STATUS */
+.climate-status{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+  padding:24px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:22px;
+  box-shadow:0 18px 50px rgba(0,0,0,0.22);
+  font-family:'Inter',sans-serif;
+}
+.climate-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:18px 20px;
+  border-radius:18px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.climate-icon{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  background:rgba(255,255,255,0.12);
+}
+.climate-info{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.climate-label{
+  font-size:13px;
+  font-weight:700;
+  color:#9fb6cd;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+}
+.climate-value{
+  font-size:30px;
+  font-weight:800;
+  color:#fff;
+  line-height:1.05;
+}.climate-subinfo{
+  font-size:13px;
+  color:#b1c6db;
+  margin-top:6px;
+}
 /* ZONES GRID */
 .zones-grid{
   display:grid;
@@ -78,48 +133,48 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   border:1px solid var(--border);
   border-radius:16px;
   padding:22px;
-  transition:border-color 0.5s,box-shadow 0.5s;
+  transition:border-color 0.5s,box-shadow 0.5s,background-color 0.5s;
   position:relative;overflow:hidden;
 }
-.zone-card.dry{border-color:var(--dry);box-shadow:0 0 24px var(--dry-glow);}
-.zone-card.opt{border-color:var(--opt);box-shadow:0 0 24px var(--opt-glow);}
-.zone-card.sat{border-color:var(--sat);box-shadow:0 0 24px var(--sat-glow);}
+.zone-card.dry{background:#e84545;border-color:#b93636;}
+.zone-card.opt{background:#27ae60;border-color:#1f8f50;}
+.zone-card.sat{background:#2980b9;border-color:#1f5f8f;}
 
 .card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.card-zone-id{font-family:var(--font-head);font-size:10px;color:var(--muted);letter-spacing:0.1em;}
-.card-zone-name{font-size:16px;font-weight:700;color:#fff;margin-top:3px;}
-.card-crop{font-size:12px;color:var(--muted);margin-top:2px;}
+.card-zone-name{font-size:18px;font-weight:800;color:#fff;margin-top:3px;}
+.card-crop{font-size:13px;font-weight:600;color:#fff;margin-top:2px;}
 
-.cond-pill{font-size:11px;font-weight:700;border-radius:20px;padding:4px 12px;letter-spacing:0.07em;text-transform:uppercase;}
-.cond-pill.dry{background:rgba(232,69,69,0.2);color:var(--dry);border:1px solid rgba(232,69,69,0.4);}
-.cond-pill.opt{background:rgba(39,174,96,0.2);color:#2ecc71;border:1px solid rgba(39,174,96,0.4);}
-.cond-pill.sat{background:rgba(41,128,232,0.2);color:#5dade2;border:1px solid rgba(41,128,232,0.4);}
+.cond-pill{background:rgba(0,0,0,0.22);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:6px 14px;letter-spacing:0.07em;text-transform:uppercase;font-weight:700;font-size:13px;}
+.cond-pill.dry{background:rgba(0,0,0,0.22);}
+.cond-pill.opt{background:rgba(0,0,0,0.22);}
+.cond-pill.sat{background:rgba(0,0,0,0.22);}
 
 /* ARC GAUGE */
 .gauge-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 12px;}
 .gauge-svg{width:150px;height:90px;overflow:visible;}
 .gauge-track{fill:none;stroke:#ffffff0d;stroke-width:13;stroke-linecap:round;}
 .gauge-fill{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dasharray 1s cubic-bezier(.4,0,.2,1),stroke 0.5s;}
-.gauge-val{font-family:var(--font-head);font-size:21px;font-weight:700;fill:#fff;}
-.gauge-sub{font-size:10px;fill:#7a96a8;font-family:'Nunito',sans-serif;}
+.gauge-val{font-family:var(--font-head);font-size:24px;font-weight:800;fill:#fff;}
+.gauge-sub{font-size:12px;fill:#fff;font-family:var(--font-body);}
 
 /* PROGRESS BAR */
 .prog-track{height:5px;background:rgba(255,255,255,0.06);border-radius:4px;margin:6px 0 14px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:4px;transition:width 0.9s ease,background 0.5s;}
+.prog-fill{height:100%;border-radius:4px;transition:width 0.9s ease,background 0.5s;background:#fff;}
 
 /* PUMP */
 .pump-divider{border:none;border-top:1px solid var(--border);margin:0 0 13px;}
 .pump-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.pump-label{font-size:12px;color:var(--muted);}
-.pump-status{font-family:var(--font-head);font-size:13px;font-weight:700;}
-.pump-status.on{color:#5dade2;animation:pumppulse 1.1s infinite;}
-.pump-status.off{color:var(--muted);}
+.pump-row.running .pump-label{color:#174a7a;}
+.pump-label{font-size:14px;color:#fff;font-weight:700;}
+.pump-status{font-family:var(--font-body);font-size:18px;font-weight:800;color:#fff;}
+.pump-status.on{color:#174a7a;}
+.pump-status.off{color:#fff;}
 @keyframes pumppulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .pump-btns{display:flex;gap:8px;}
 .btn-start,.btn-stop{
   flex:1;border:none;cursor:pointer;
   padding:8px 0;border-radius:8px;
-  font-family:var(--font-body);font-size:13px;font-weight:700;
+  font-family:var(--font-body);font-size:14px;font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:5px;
   transition:opacity 0.2s,transform 0.1s;
 }
@@ -132,32 +187,135 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .bottom-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;}
 .panel-title{
-  font-size:12px;font-weight:700;color:var(--muted);
+  font-size:13px;font-weight:700;color:#fff;
   text-transform:uppercase;letter-spacing:0.1em;
   margin-bottom:14px;display:flex;align-items:center;gap:7px;
+}
+.alert-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px;}
+.alert-header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.alert-title{font-size:16px;font-weight:800;color:#fff;}
+.alert-count{font-size:13px;color:#9fb6cd;font-weight:700;}
+.alerts-list{display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto;padding-right:4px;}
+.alert-item{display:flex;flex-direction:column;gap:8px;padding:16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
+.alert-item.dry{background:rgba(232,69,69,0.14);border-color:rgba(232,69,69,0.35);}
+.alert-item.sat{background:rgba(41,128,232,0.14);border-color:rgba(41,128,232,0.35);}
+.alert-text{font-size:14px;font-weight:700;color:#fff;}
+.alert-meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#9fb6cd;}
+.alert-type{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.alert-type.dry{background:rgba(232,69,69,0.2);color:#fff;}
+.alert-type.sat{background:rgba(41,128,232,0.2);color:#fff;}
+.alert-empty{font-size:14px;color:#9fb6cd;padding:18px 14px;border:1px dashed rgba(255,255,255,0.2);border-radius:14px;text-align:center;}
+.alert-actions{text-align:right;}
+.chart-panel{position:relative;}
+.data-records-corner{position:absolute;top:24px;right:24px;z-index:3;width:200px;}
+.data-btn{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;cursor:pointer;font-family:var(--font-body);font-size:15px;width:100%;font-weight:700;text-align:left;box-shadow:0 0 0 1px rgba(255,255,255,0.08);border-bottom:3px solid #fff;transition:transform .2s ease,background .2s ease;}
+.data-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,0.06);}
+#data-table{width:100%;border-collapse:collapse;margin-top:10px;}
+#data-table th,#data-table td{background:transparent;color:#fff;}
+#data-table td{font-family:var(--font-body);font-size:13px;}
+#data-table th{font-family:var(--font-body);font-size:13px;}
+.stat-box-label{font-size:12px;color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
+.stat-box-val{font-family:var(--font-head);font-size:24px;font-weight:700;color:#fff;}
+.leg-text{font-size:14px;color:#fff;font-weight:600;}
+.leg-range{font-size:12px;color:#fff;margin-left:auto;font-weight:600;}
+.footer{color:#fff;font-size:13px;font-weight:600;}
+
+/* DATA TABLE */
+#data-table th, #data-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+  font-size: 12px;
+}
+#data-table th {
+  background: var(--panel2);
+  font-weight: 700;
+  color: #fff;
+}
+.download-btn {
+  margin-top: 14px;
+  padding: 8px 16px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.download-btn:hover {
+  background: var(--border);
 }
 
 /* STAT BOXES */
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .stat-box{background:var(--panel2);border-radius:10px;padding:12px 14px;border:1px solid var(--border);}
-.stat-box-label{font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
-.stat-box-val{font-family:var(--font-head);font-size:22px;font-weight:700;}
-.stat-box-val.dry{color:var(--dry);}
-.stat-box-val.opt{color:#2ecc71;}
-.stat-box-val.sat{color:#5dade2;}
+.stat-box-label{font-size:11px;color:#fff;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.07em;}
+.stat-box-val{font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff;}
+.stat-box-val.dry{color:#fff;}
+.stat-box-val.opt{color:#fff;}
+.stat-box-val.sat{color:#fff;}
 .stat-box-val.white{color:#fff;}
 
 /* LEGEND */
 .legend-list{display:flex;flex-direction:column;gap:12px;}
 .leg-item{display:flex;align-items:center;gap:10px;}
 .leg-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
-.leg-text{font-size:13px;color:var(--text);}
-.leg-range{font-size:11px;color:var(--muted);margin-left:auto;}
+.leg-text{font-size:13px;color:#fff;}
+.leg-range{font-size:11px;color:#fff;margin-left:auto;}
 
 /* CHART */
-.chart-wrap{height:150px;position:relative;}
+.chart-wrap{height:280px;position:relative;}
 
-.footer{text-align:right;margin-top:18px;font-size:12px;color:var(--muted);}
+.footer{text-align:right;margin-top:18px;font-size:12px;color:#fff;}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+}
+.modal-content {
+  background-color: var(--panel);
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 80%;
+  max-width: 800px;
+  color: #fff;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover { color: #fff; }
+
+/* MODAL TABLE */
+#modal-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+#modal-data-table th, #modal-data-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+  font-size: 12px;
+}
+#modal-data-table th {
+  background: var(--panel2);
+  font-weight: 700;
+  color: #fff;
+}
 </style>
 </head>
 <body>
@@ -170,41 +328,116 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
       <div class="brand-sub">IoT Irrigation Dashboard</div>
     </div>
   </div>
-  <div class="topbar-clock" id="clock">--:--:-- --</div>
+  <div class="topbar-clock" id="clock">
+    <div class="time">--:--:-- --</div>
+    <div class="date">--/--/--</div>
+  </div>
   <div class="conn-pill"><span class="conn-dot"></span>Connected</div>
 </header>
 
 <main class="main">
-  <div class="zones-grid" id="zones-grid"></div>
-
-  <div class="bottom-row">
-    <div class="panel">
-      <div class="panel-title">📊 Zone Summary</div>
-      <div class="stat-row">
-        <div class="stat-box"><div class="stat-box-label">Total Zones</div><div class="stat-box-val white">4</div></div>
-        <div class="stat-box"><div class="stat-box-label">Pumps ON</div><div class="stat-box-val sat" id="sum-pumps">0</div></div>
-        <div class="stat-box"><div class="stat-box-label">Optimal</div><div class="stat-box-val opt" id="sum-opt">0</div></div>
-        <div class="stat-box"><div class="stat-box-label">Dry</div><div class="stat-box-val dry" id="sum-dry">0</div></div>
+  <div class="climate-status">
+      <div class="climate-card" style="flex-direction:column;align-items:flex-start;gap:10px;">
+        <div class="climate-label">Location</div>
+        <div class="climate-value" id="climate-location">Pathum Thani, Thailand</div>
+        <div class="climate-subinfo" id="climate-last-update">Last updated: --</div>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">🎨 Condition Legend</div>
-      <div class="legend-list">
-        <div class="leg-item"><div class="leg-dot" style="background:#e84545;box-shadow:0 0 7px #e84545;"></div><div class="leg-text">Dry</div><div class="leg-range">Moisture &lt; 35%</div></div>
-        <div class="leg-item"><div class="leg-dot" style="background:#27ae60;box-shadow:0 0 7px #27ae60;"></div><div class="leg-text">Optimal</div><div class="leg-range">35% – 90%</div></div>
-        <div class="leg-item"><div class="leg-dot" style="background:#2980e8;box-shadow:0 0 7px #2980e8;"></div><div class="leg-text">Saturated</div><div class="leg-range">Moisture &gt; 90%</div></div>
+      <div class="climate-card">
+        <div class="climate-icon">🌤️</div>
+        <div class="climate-info">
+          <div class="climate-label">Temperature</div>
+          <div class="climate-value" id="climate-temp">30°C</div>
+          <div class="climate-subinfo" id="climate-feels">Feels like 35°C</div>
+        </div>
       </div>
-    </div>
-
-    <div class="panel" style="grid-column: span 2;">
-      <div class="panel-title">📈 Soil Moisture Trend — All Zones</div>
-      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-    </div>
+      <div class="climate-card">
+        <div class="climate-icon">💧</div>
+        <div class="climate-info">
+          <div class="climate-label">Humidity</div>
+          <div class="climate-value" id="climate-hum">79%</div>
+          <div class="climate-subinfo" id="climate-rain">Rain chance 0%</div>
+        </div>
+      </div>
+      <div class="climate-card">
+        <div class="climate-icon" id="climate-weather-icon">☀️</div>
+        <div class="climate-info">
+          <div class="climate-label">Conditions</div>
+          <div class="climate-value" id="climate-weather">Clear Sky</div>
+          <div class="climate-subinfo" id="climate-wind">Wind 25.6 km/h S</div>
+          <div class="climate-subinfo" id="climate-pressure">Pressure 1008 mb</div>
+        </div>
+      </div>
   </div>
 
+  <div class="zones-grid" id="zones-grid"></div>
+
+  <div class="bottom-row chart-row">
+      <div class="panel chart-panel" style="grid-column: span 3;">
+        <div class="panel-title">📈 Soil Moisture Trend — All Zones</div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+        <div class="data-records-corner">
+          <button id="view-data-btn" class="data-btn">📋 Data Records</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="panel">
+        <div class="panel-title">📊 Zone Summary</div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-box-label">Pumps ON</div><div class="stat-box-val white" id="sum-pumps">0</div></div>
+          <div class="stat-box"><div class="stat-box-label">Saturated</div><div class="stat-box-val white" id="sum-sat">0</div></div>
+          <div class="stat-box"><div class="stat-box-label">Optimal</div><div class="stat-box-val white" id="sum-opt">0</div></div>
+          <div class="stat-box"><div class="stat-box-label">Dry</div><div class="stat-box-val white" id="sum-dry">0</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">🎨 Condition Legend</div>
+        <div class="legend-list">
+          <div class="leg-item"><div class="leg-dot" style="background:#e84545;box-shadow:0 0 7px #e84545;"></div><div class="leg-text">Dry</div><div class="leg-range">Moisture &lt; 35%</div></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#27ae60;box-shadow:0 0 7px #27ae60;"></div><div class="leg-text">Optimal</div><div class="leg-range">35% – 90%</div></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#2980e8;box-shadow:0 0 7px #2980e8;"></div><div class="leg-text">Saturated</div><div class="leg-range">Moisture &gt; 90%</div></div>
+        </div>
+      </div>
+    </div>
+  <div class="bottom-row">
+    <div class="panel alert-panel" id="alerts-panel">
+      <div class="alert-header">
+        <div class="alert-title">🔔 Alerts</div>
+        <div class="alert-count">0 alerts</div>
+      </div>
+      <div class="alerts-list" id="alerts-list">
+        <div class="alert-empty">No alerts yet. Dry or saturated zones will appear here automatically.</div>
+      </div>
+      <div class="alert-actions">
+        <button id="view-alerts-btn" class="data-btn" type="button">View All Alerts</button>
+      </div>
+    </div>
+  </div>
   <div class="footer" id="last-update">Connecting to Firebase…</div>
 </main>
+
+<!-- MODAL -->
+<div id="dataModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Data Records</h2>
+    <table id="modal-data-table">
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Time</th>
+          <th>Moisture (%)</th>
+          <th>Pump Status</th>
+        </tr>
+      </thead>
+      <tbody id="modal-data-tbody">
+        <!-- Data rows will be inserted here -->
+      </tbody>
+    </table>
+    <button id="modal-download-btn" class="download-btn">Download CSV</button>
+  </div>
+</div>
 
 <script>
 // ── ZONE CONFIG ───────────────────────────────────────────
@@ -216,6 +449,30 @@ const ZONES=[
 ];
 const COLORS={dry:'#e84545',opt:'#27ae60',sat:'#2980e8'};
 const LABELS={dry:'Dry',opt:'Optimal',sat:'Saturated'};
+const WEATHER_SAMPLE={
+  location:'Pathum Thani, Thailand',
+  temp:30,
+  feelsLike:35,
+  humidity:79,
+  rainChance:0,
+  condition:'Clear Sky',
+  icon:'☀️',
+  wind:'25.6 km/h S',
+  pressure:'1008 mb',
+};
+
+function updateWeatherPanel(data){
+  document.getElementById('climate-location').textContent=data.location;
+  document.getElementById('climate-temp').textContent=`${data.temp}°C`;
+  document.getElementById('climate-feels').textContent=`Feels like ${data.feelsLike}°C`;
+  document.getElementById('climate-hum').textContent=`${data.humidity}%`;
+  document.getElementById('climate-rain').textContent=`Rain chance ${data.rainChance}%`;
+  document.getElementById('climate-weather').textContent=data.condition;
+  document.getElementById('climate-weather-icon').textContent=data.icon;
+  document.getElementById('climate-wind').textContent=`Wind ${data.wind}`;
+  document.getElementById('climate-pressure').textContent=`Pressure ${data.pressure}`;
+  document.getElementById('climate-last-update').textContent='Last updated: '+new Date().toLocaleTimeString();
+}
 
 // SVG arc gauge setup (viewBox 150x90)
 const CX=75,CY=82,R=60;
@@ -245,7 +502,6 @@ ZONES.forEach(z=>{
   d.innerHTML=`
     <div class="card-head">
       <div>
-        <div class="card-zone-id">${z.id.toUpperCase()} · NODE</div>
         <div class="card-zone-name">${z.name}</div>
         <div class="card-crop">🌾 ${z.crop}</div>
       </div>
@@ -261,7 +517,7 @@ ZONES.forEach(z=>{
     </div>
     <div class="prog-track"><div id="bar-${z.id}" class="prog-fill" style="width:0%"></div></div>
     <hr class="pump-divider"/>
-    <div class="pump-row">
+    <div id="pump-row-${z.id}" class="pump-row">
       <span class="pump-label">⚙ Pump Status</span>
       <span id="pump-${z.id}" class="pump-status off">STOPPED</span>
     </div>
@@ -275,7 +531,49 @@ ZONES.forEach(z=>{
 // ── STATE & HISTORY ───────────────────────────────────────
 const state={};
 const hist={Zone1:[],Zone2:[],Zone3:[],Zone4:[]};
+const alerts=[];
 const MAX=20;
+const ALERT_MAX=10;
+
+function formatAlertTime(ts){
+  return new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function renderAlerts(){
+  const list=document.getElementById('alerts-list');
+  const count=document.querySelector('.alert-count');
+  list.innerHTML='';
+  if(alerts.length===0){
+    list.innerHTML='<div class="alert-empty">No alerts yet. Dry or saturated zones will appear here automatically.</div>';
+  } else {
+    alerts.forEach(a=>{
+      const item=document.createElement('div');
+      item.className=`alert-item ${a.cond}`;
+      item.innerHTML=`
+        <div class="alert-text">${a.text}</div>
+        <div class="alert-meta"><span>${formatAlertTime(a.time)}</span><span class="alert-type ${a.cond}">${a.cond==='dry'?'Dry':'Saturated'}</span></div>
+      `;
+      list.appendChild(item);
+    });
+  }
+  if(count) count.textContent=`${alerts.length} alert${alerts.length===1?'':'s'}`;
+}
+
+function addAlert(zoneId,moisture,cond){
+  const zone=ZONES.find(z=>z.id===zoneId);
+  if(!zone) return;
+  const text = cond==='dry'
+    ? `${zone.name} (${zone.crop}) soil moisture is low (${moisture.toFixed(1)}%)`
+    : `${zone.name} (${zone.crop}) soil moisture is saturated (${moisture.toFixed(1)}%)`;
+  alerts.unshift({time:new Date().toISOString(),text,cond});
+  if(alerts.length>ALERT_MAX) alerts.pop();
+  renderAlerts();
+}
+
+function scrollToAlerts(){
+  const panel=document.getElementById('alerts-panel');
+  if(panel) panel.scrollIntoView({behavior:'smooth'});
+}
 
 // ── CHART ─────────────────────────────────────────────────
 const zColors=['#e84545','#27ae60','#2980e8','#f39c12'];
@@ -291,10 +589,11 @@ const trendChart=new Chart(document.getElementById('trendChart').getContext('2d'
   },
   options:{
     responsive:true,maintainAspectRatio:false,animation:{duration:300},
-    plugins:{legend:{labels:{color:'#7a96a8',font:{size:11,family:'Nunito'}}}},
+    plugins:{legend:{onClick:()=>{},labels:{color:'#fff',font:{size:11,family:'Nunito'}}}},
     scales:{
-      x:{ticks:{color:'#7a96a8',maxTicksLimit:4,font:{size:10}},grid:{color:'#ffffff08'}},
-      y:{min:0,max:100,ticks:{color:'#7a96a8',font:{size:10},stepSize:25},grid:{color:'#ffffff08'}},
+      x:{ticks:{color:'#fff',maxTicksLimit:4,font:{size:10,family:'Nunito'}},grid:{color:'#ffffff08'}},
+      y:{min:0,max:100,ticks:{color:'#fff',font:{size:10,family:'Nunito'},stepSize:25},grid:{color:'#ffffff08'}},
+
     }
   }
 });
@@ -302,9 +601,22 @@ const trendChart=new Chart(document.getElementById('trendChart').getContext('2d'
 function refreshChart(){
   ZONES.forEach((z,i)=>{
     const h=hist[z.id];
-    trendChart.data.datasets[i].data=Array(MAX-h.length).fill(null).concat(h);
+    trendChart.data.datasets[i].data=Array(MAX-h.length).fill(null).concat(h.map(e => e.moisture));
   });
   trendChart.update('none');
+}
+
+function updateTable(){
+  const modalTbody = document.getElementById('modal-data-tbody');
+  modalTbody.innerHTML = '';
+  ZONES.forEach(z => {
+    const h = hist[z.id];
+    h.slice(-20).forEach(entry => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${z.name}</td><td>${new Date(entry.time).toLocaleString()}</td><td>${entry.moisture}</td><td>${state[z.id]?.pump || '--'}</td>`;
+      modalTbody.appendChild(tr);
+    });
+  });
 }
 
 // ── UPDATE ZONE ───────────────────────────────────────────
@@ -312,7 +624,9 @@ function getCond(m){return m<35?'dry':m>90?'sat':'opt';}
 
 function updateZone(zoneId,moisture,pump){
   const cond=getCond(moisture);
+  const prevCond = state[zoneId]?.cond;
   state[zoneId]={cond,pump};
+  if(cond!==prevCond && (cond==='dry' || cond==='sat')) addAlert(zoneId,moisture,cond);
 
   document.getElementById(`card-${zoneId}`).className=`zone-card ${cond}`;
 
@@ -320,26 +634,29 @@ function updateZone(zoneId,moisture,pump){
   pill.className=`cond-pill ${cond}`;pill.textContent=LABELS[cond];
 
   const arcEl=document.getElementById(`arc-${zoneId}`);
-  arcEl.setAttribute('stroke',COLORS[cond]);
+  arcEl.setAttribute('stroke','white');
   arcEl.setAttribute('stroke-dasharray',dashFor(moisture));
 
   document.getElementById(`gval-${zoneId}`).textContent=moisture.toFixed(1)+'%';
 
   const bar=document.getElementById(`bar-${zoneId}`);
   bar.style.width=Math.min(moisture,100)+'%';
-  bar.style.background=COLORS[cond];
+  bar.style.background='white';
 
   const pEl=document.getElementById(`pump-${zoneId}`);
   pEl.textContent=pump==='ON'?'RUNNING':'STOPPED';
   pEl.className='pump-status '+(pump==='ON'?'on':'off');
+  document.getElementById(`pump-row-${zoneId}`).classList.toggle('running', pump==='ON');
 
   const h=hist[zoneId];
-  h.push(parseFloat(moisture.toFixed(1)));
+  h.push({time: new Date().toISOString(), moisture: parseFloat(moisture.toFixed(1))});
   if(h.length>MAX)h.shift();
   refreshChart();
+  updateTable();
 
   const v=Object.values(state);
   document.getElementById('sum-pumps').textContent=v.filter(x=>x.pump==='ON').length;
+  document.getElementById('sum-sat').textContent=v.filter(x=>x.cond==='sat').length;
   document.getElementById('sum-opt').textContent=v.filter(x=>x.cond==='opt').length;
   document.getElementById('sum-dry').textContent=v.filter(x=>x.cond==='dry').length;
 }
@@ -356,10 +673,28 @@ function manualPump(zoneId,val){
 function tick(){
   const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds();
   const ap=h>=12?'PM':'AM',hh=h%12||12;
-  document.getElementById('clock').textContent=
+  document.querySelector('.topbar-clock .time').textContent=
     String(hh).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' '+ap;
+  document.querySelector('.topbar-clock .date').textContent=
+    String(n.getDate()).padStart(2,'0')+'/'+String(n.getMonth()+1).padStart(2,'0')+'/'+n.getFullYear();
 }
 setInterval(tick,1000);tick();
+
+function setOnlineState(){
+  const online=navigator.onLine;
+  const pill=document.querySelector('.conn-pill');
+  if(!pill) return;
+  pill.className='conn-pill '+(online?'online':'offline');
+  pill.innerHTML=`<span class="conn-dot"></span>${online?'Connected':'Offline'}`;
+}
+window.addEventListener('online',setOnlineState);
+window.addEventListener('offline',setOnlineState);
+setOnlineState();
+updateWeatherPanel(WEATHER_SAMPLE);
+
+const viewAlertsBtn=document.getElementById('view-alerts-btn');
+if(viewAlertsBtn){viewAlertsBtn.addEventListener('click',scrollToAlerts);}
+renderAlerts();
 
 // ── FIREBASE ──────────────────────────────────────────────
 let db=null;
@@ -393,6 +728,44 @@ try{
   console.error('Firebase initialization error:', e);
   document.getElementById('last-update').textContent='Firebase init error: '+e.message;
 }
+
+// ── DOWNLOAD CSV ──────────────────────────────────────────
+document.getElementById('modal-download-btn').addEventListener('click', () => {
+  let csv = 'Zone,Time,Moisture,Pump\n';
+  ZONES.forEach(z => {
+    const h = hist[z.id];
+    h.forEach(entry => {
+      csv += `${z.name},${entry.time},${entry.moisture},${state[z.id]?.pump || 'UNKNOWN'}\n`;
+    });
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'irrigation_data.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ── MODAL ──────────────────────────────────────────────────
+const modal = document.getElementById('dataModal');
+const viewBtn = document.getElementById('view-data-btn');
+const closeBtn = document.querySelector('.close');
+
+viewBtn.onclick = () => {
+  modal.style.display = 'block';
+  updateTable();
+};
+
+closeBtn.onclick = () => {
+  modal.style.display = 'none';
+};
+
+window.onclick = (event) => {
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+};
 </script>
 </body>
 </html>
